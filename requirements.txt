@@ -1,0 +1,10 @@
+fastapi==0.110.0
+python-multipart>=0.0.9
+uvicorn==0.28.0
+opencv-python-headless==4.8.1.78
+ultralytics==8.1.0
+paddleocr==2.7.3
+paddlepaddle==2.6.2
+numpy==1.26.4
+easyocr==1.7.1
+regex==2023.12.25

@@ -1,0 +1,422 @@
+DRISHTI DRIVE VEHICLE SURVEILLANCE PROJECT
+==========================================
+
+Purpose
+-------
+A multi-page vehicle surveillance application with:
+  1. Home/menu dashboard
+  2. ANPR live camera and owner-compliance page
+  3. Tracking/OCR vehicle route page
+  4. Traffic heatmap and live camera page
+
+
+MAIN STARTUP FLOW
+-----------------
+
+User runs:
+  .\venv\Scripts\python.exe menu\app.py
+                    |
+                    v
+              menu/app.py
+              FastAPI main app
+                    |
+       +------------+-------------+----------------+
+       |                          |                |
+       v                          v                v
+   / (Home)                   /anpr             /traffic
+   menu_frontend              ANPR app          Traffic app
+                                  |                |
+                                  v                v
+                              ANPR page       Traffic page
+                    |
+                    v
+                /tracking
+             Tracking/OCR page
+
+Active mounted application:
+  menu/app.py
+
+Legacy/standalone entrypoints:
+  main.py                         Older standalone tracking backend
+  menu/tracking and ocr/main.py   Standalone Tracking/OCR backend
+  Traffic/traffic_backend/traffic_backend.py
+                                  Standalone/mounted Traffic backend
+  menu/ANPR/ANPR_backend/main.py  Standalone/mounted ANPR backend
+
+
+SHARED PROJECT DATA
+-------------------
+
+cameras/C1.csv  -> Camera 1 sightings, location, latitude, longitude, date, time
+cameras/C2.csv  -> Camera 2 sightings, location, latitude, longitude, date, time
+cameras/C3.csv  -> Camera 3 sightings, location, latitude, longitude, date, time
+cameras/C4.csv  -> Camera 4 sightings, location, latitude, longitude, date, time
+
+menu/owner_details.csv              -> owner registry and vehicle status
+menu/ANPR/vehicle_data.csv           -> fallback/ANPR vehicle registry
+menu/ANPR/video_footage/video*.mp4   -> camera video footage
+Traffic/traffic_csv/cam1_traffic.csv -> live traffic plate entries for CAM1
+Traffic/traffic_csv/cam2_traffic.csv -> live traffic plate entries for CAM2
+Traffic/traffic_csv/cam3_traffic.csv -> live traffic plate entries for CAM3
+Traffic/traffic_csv/cam4_traffic.csv -> live traffic plate entries for CAM4
+
+Models:
+  yolov8n.pt -> Ultralytics YOLO object detection model
+
+
+PAGE 1: HOME / MENU
+-------------------
+
+Browser request: GET /
+        |
+        v
+menu/app.py -> serve_menu()
+        |
+        v
+menu/menu_frontend/index.html
+        |
+        +--> Shared navigation links:
+        |       /anpr/
+        |       /tracking/
+        |       /traffic/
+        |
+        +--> Shared assets:
+                /assets
+                /navbar
+
+Packages/modules used:
+  - FastAPI
+  - FileResponse
+  - StaticFiles
+  - pathlib.Path
+  - importlib.util for mounted sub-applications
+
+
+PAGE 2: ANPR LIVE SURVEILLANCE
+------------------------------
+
+Browser request: GET /anpr/
+        |
+        v
+menu/app.py -> load_anpr_app()
+        |
+        v
+menu/ANPR/ANPR_backend/main.py
+        |
+        v
+menu/ANPR/ANPR_frontend/index.html
+        |
+        +--> Four live camera feeds:
+        |       CAM-01 -> Vishesh Tyagi Chowk
+        |       CAM-02 -> Maharishi Ashram Chowk
+        |       CAM-03 -> Bhangel
+        |       CAM-04 -> Metro Sec 76
+        |
+        +--> Every 3 seconds:
+                GET /anpr/api/latest-detection
+                              |
+                              v
+                    Select plate from vehicle_data.csv
+                              |
+                              v
+                    Check owner and compliance data
+                              |
+                              v
+                    Update detection activity table
+                    Update owner intelligence panel
+
+ANPR backend modules:
+  - FastAPI, Request
+  - HTMLResponse, StreamingResponse
+  - StaticFiles, Jinja2Templates
+  - OpenCV (cv2)
+  - NumPy
+  - Pandas
+  - PyTorch
+  - Ultralytics YOLO
+  - random
+  - datetime
+  - os, re
+
+ANPR responsibilities:
+  - Stream video with YOLO boxes
+  - Select/detect a plate record
+  - Validate Indian plate format
+  - Read vehicle_data.csv
+  - Display owner, contact, address, RC and PUC status
+  - Return camera source and compliance result
+
+Important endpoints:
+  GET  /anpr/
+  GET  /anpr/video_feed/{cam_id}
+  GET  /anpr/api/latest-detection
+
+
+PAGE 3: TRACKING / OCR
+----------------------
+
+Browser request: GET /tracking/
+        |
+        v
+menu/app.py -> subscription gate
+        |
+        +--> Inactive -> Razorpay ₹99/month checkout
+        |                     |
+        |                     +--> Signed webhook updates subscription status
+        |
+        +--> Active -> StaticFiles(TRACKING_DIR)
+        |
+        v
+menu/tracking and ocr/index.html
+        |
+        +--> Manual plate search
+        |          |
+        |          v
+        |      GET /api/vehicles/{plate}
+        |
+        +--> Image upload
+        |          |
+        |          v
+        |      POST /api/recognize-plate
+        |          |
+        |          v
+        |      DynamicANPR.recognize(image)
+        |
+        +--> Route button
+                   |
+                   v
+       GET /api/vehicles/{plate}/route?start=...&end=...
+                   |
+                   v
+       Filter matching sightings from cameras/C1-C4.csv
+                   |
+                   v
+       Post route points to tracking/map.html iframe
+                   |
+                   v
+       Leaflet route and camera-location markers
+
+Tracking vehicle-search flow:
+  1. Normalize the entered plate.
+  2. Search all cameras/*.csv files.
+  3. Select the relevant historical date when no date is supplied.
+  4. Sort sightings by timestamp.
+  5. Load owner details from menu/owner_details.csv.
+  6. Populate start/end camera locations.
+  7. Draw the route using Leaflet and optional OSRM road routing.
+
+Tracking/OCR modules:
+  Backend:
+    - FastAPI
+    - OpenCV (cv2)
+    - NumPy
+    - csv
+    - datetime
+    - pathlib.Path
+    - importlib.util
+    - run_in_threadpool
+
+  OCR module: menu/tracking and ocr/iamge_to_number.py
+    - PaddleOCR
+    - OpenCV (cv2)
+    - NumPy
+    - re
+    - logging, warnings, os
+    - DynamicANPR class
+
+  Frontend/map modules from CDN:
+    - Leaflet
+    - Leaflet Routing Machine
+    - Leaflet Awesome Markers
+    - Leaflet MarkerCluster
+    - Bootstrap
+    - Font Awesome
+
+Important endpoints:
+  GET  /tracking/
+  GET  /tracking/map.html
+  GET  /api/vehicles/{plate}             (active subscription required)
+  GET  /api/vehicles/{plate}/route       (active subscription required)
+  POST /api/recognize-plate              (active subscription required)
+  GET  /api/subscription/status
+  POST /api/subscription/create
+  POST /api/subscription/verify
+  POST /api/subscription/cancel
+  POST /api/subscription/webhook
+
+The subscription gate applies only to Tracking / OCR. ANPR live detection and
+Traffic routes are not gated.
+
+Tracking data flow:
+  Image upload -> OpenCV decode -> PaddleOCR -> normalized plate
+  Plate search -> cameras/C1.csv ... cameras/C4.csv
+  Owner lookup -> owner_details.csv
+  Route response -> map iframe -> Leaflet markers/polyline
+
+
+PAGE 4: TRAFFIC MONITORING
+--------------------------
+
+Browser request: GET /traffic/
+        |
+        v
+menu/app.py -> load_traffic_app()
+        |
+        v
+Traffic/traffic_backend/traffic_backend.py
+        |
+        v
+Traffic/traffic_frontend/index.html
+        |
+        +--> Four processed MJPEG feeds:
+        |       /traffic/video_feed/1
+        |       /traffic/video_feed/2
+        |       /traffic/video_feed/3
+        |       /traffic/video_feed/4
+        |
+        +--> Traffic map iframe:
+        |       /traffic/map.html
+        |             |
+        |             +--> Poll /traffic/api/traffic-data every 5 seconds
+        |             +--> Rebuild colored camera heat circles
+        |
+        +--> Vehicle slots:
+                Poll /traffic/api/live-detections every 5 seconds
+                CAM1 slot <- cam1_traffic.csv
+                CAM2 slot <- cam2_traffic.csv
+                CAM3 slot <- cam3_traffic.csv
+                CAM4 slot <- cam4_traffic.csv
+
+Traffic video flow:
+  Camera feed request
+        |
+        v
+  get_video_files() discovers video*.mp4
+        |
+        v
+  Start camera N at video N
+        |
+        v
+  YOLO processes every frame
+        |
+        v
+  At video end, advance to next available video
+        |
+        v
+  video1 -> video2 -> video3 -> video4 -> video1
+
+Traffic count flow:
+  Read each *_traffic.csv
+        |
+        v
+  Keep rows from the current rolling 60-second time window
+        |
+        v
+  Normalize vehicle IDs and count distinct runtime entries per camera
+        |
+        v
+  Apply traffic color:
+    0-10 vehicles  -> blue  (#2196f3)
+    11-15 vehicles -> orange (#ff9800)
+    16+ vehicles   -> red   (#f44336)
+        |
+        v
+  Return camera count, level, coordinates and color
+        |
+        v
+  Leaflet map renders colored traffic circles
+
+Traffic backend modules:
+  - FastAPI
+  - HTMLResponse, StreamingResponse
+  - StaticFiles, Jinja2Templates
+  - OpenCV (cv2)
+  - NumPy
+  - Pandas
+  - PyTorch
+  - Ultralytics YOLO
+  - csv
+  - datetime/timezone
+  - os, random, re
+
+Important endpoints:
+  GET /traffic/
+  GET /traffic/map.html
+  GET /traffic/video_feed/{cam_id}
+  GET /traffic/api/live-detections
+  GET /traffic/api/traffic-data
+
+
+PACKAGE AND REQUIREMENTS MAP
+----------------------------
+
+Root requirements.txt:
+  fastapi==0.110.0
+  python-multipart>=0.0.9
+  uvicorn==0.28.0
+  opencv-python-headless==4.8.1.78
+  ultralytics==8.1.0
+  paddleocr==2.7.3
+  paddlepaddle==2.6.2
+  numpy==1.26.4
+  easyocr==1.7.1
+  regex==2023.12.25
+
+Traffic/requirements.txt:
+  fastapi, uvicorn[standard], python-multipart
+  opencv-python-headless, ultralytics, numpy, Pillow
+
+menu/ANPR/requirements.txt:
+  fastapi, uvicorn, jinja2, opencv-python
+  numpy, ultralytics, pydantic, pandas, python-multipart
+
+Browser/CDN libraries:
+  - Leaflet map rendering
+  - Leaflet Routing Machine road routes
+  - Leaflet MarkerCluster and Awesome Markers
+  - Bootstrap styles/utilities
+  - Font Awesome icons
+  - Google Maps tile servers
+  - OSRM routing service
+
+
+DEPLOYMENT FLOW
+---------------
+
+Dockerfile
+    |
+    +--> python:3.10-slim
+    +--> system libraries: libgl1, libglib2.0-0, libgomp1
+    +--> pip install requirements.txt
+    +--> copy project into /app
+    +--> expose port 8000
+    +--> uvicorn menu.app:app --host 0.0.0.0 --port 8000
+    +--> Docker Compose persists subscriptions in subscription-data volume
+
+ docker-compose.yml
+    |
+    +--> lpr-app service
+    +--> port 8000:8000
+    +--> Razorpay/session secrets supplied through environment variables
+
+Local development:
+  .\venv\Scripts\python.exe menu\app.py
+  Open http://127.0.0.1:8000
+
+
+KEY ARCHITECTURE NOTES
+----------------------
+
+  - menu/app.py is the active integrated entrypoint for all three pages.
+  - main.py is an older standalone tracking implementation.
+  - Tracking CSV sightings are historical route data.
+  - Traffic CSV files are runtime traffic-entry data.
+  - YOLO detects objects in video frames.
+    Traffic YOLO detections are written as per-camera runtime vehicle IDs.
+  - PaddleOCR reads license plates from uploaded images in Tracking/OCR.
+  - Owner data is registry data, separate from camera sightings.
+  - The frontend map pages are iframe-based Leaflet applications.
+  - Traffic counts use a rolling 60-second window based on CSV time values.
+    - Traffic backend appends detected vehicle IDs to camN_traffic.csv every 5 seconds per active track.
+  - Traffic heatmap and camera plate slots refresh every 5 seconds.
+  - Tracking route is drawn only after a plate exists in camera CSV records.

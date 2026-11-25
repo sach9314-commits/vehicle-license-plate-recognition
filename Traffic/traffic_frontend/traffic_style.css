@@ -1,0 +1,289 @@
+/* Color Palette Variables */
+:root {
+    --color-1: #fff200;
+    --color-2: #ffe600;
+    --color-3: #ffd900;
+    --color-4: #ffcc00;
+    --color-5: #ffbf00;
+    /* Primary Accent */
+    --color-6: #ffb300;
+    --color-7: #ffa600;
+    --color-8: #ff9900;
+    --color-9: #ff8c00;
+    --color-10: #ff8000;
+
+    --bg-dark: #121212;
+    --panel-bg: #1e1e1e;
+    --card-bg: #282828;
+    --text-light: #f5f5f5;
+    --text-muted: #ffffff;
+
+    /* Subtle transparent border tokens */
+    --border-transparent: rgba(255, 255, 255, 0.08);
+    --partition-transparent: rgba(255, 255, 255, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Navbar with transparent border */
+.navbar {
+    height: 56px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid var(--border-transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+}
+
+.nav-brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-1);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--color-1);
+}
+
+.status-badge {
+    background-color: rgba(255, 191, 0, 0.12);
+    color: var(--color-4);
+    border: 1px solid rgba(255, 191, 0, 0.2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Main Dashboard Grid */
+.dashboard-container {
+    display: flex;
+    flex: 1;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.panel-header h2 {
+    font-size: 1.1rem;
+    color: var(--color-6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Left Panel (Map) */
+.left-panel {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+}
+
+#map {
+    flex: 1;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--border-transparent);
+}
+
+/* Transparent Central Partition */
+.central-partition {
+    width: 1px;
+    background-color: var(--partition-transparent);
+    margin: 1rem 0;
+}
+
+/* Right Panel (Cams & CSVs) */
+.right-panel {
+    flex: 1.2;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.feeds-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Paired Cards Row */
+.feed-pair {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 10px;
+}
+
+/* Base Card Style with transparent border */
+.card {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-transparent);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-2);
+    border-bottom: 1px solid var(--border-transparent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.live-tag {
+    background-color: var(--color-9);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Camera Card */
+.feed-placeholder {
+    height: 120px;
+    background-color: #151515;
+    background-image: radial-gradient(var(--border-transparent) 1px, transparent 0);
+    background-size: 12px 12px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.cam-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--color-4);
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    margin: 6px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+/* CSV Data Card */
+.csv-card {
+    border-left: 3px solid rgba(255, 166, 0, 0.4);
+}
+
+.csv-body {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    flex: 1;
+}
+
+.csv-body p {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-light);
+}
+
+.csv-body span {
+    color: var(--text-muted);
+}
+
+/* Buttons */
+.btn {
+    background-color: var(--color-5);
+    color: #121212;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn:hover {
+    background-color: var(--color-1);
+}
+
+.cam-overlay,
+.csv-body span {
+    color: #ffffff;
+}
+
+.btn {
+    background-color: var(--color-8);
+    color: #000000;
+}
+
+.btn:hover {
+    background-color: var(--color-1);
+}
+
+/* Scrollbar styling */
+.right-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+    background: var(--border-transparent);
+    border-radius: 3px;
+}
+
+.right-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--color-7);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .dashboard-container {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .central-partition {
+        height: 1px;
+        width: 100%;
+        margin: 0;
+    }
+
+    .left-panel {
+        min-height: 350px;
+    }
+}

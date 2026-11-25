@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DrishtiDrive · Live Surveillance</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- CSS file name mapped to anpr_stylesheet.css -->
+        <link rel="stylesheet" href="/anpr/static/anpr_stylesheet.css?v=ui-text-2">
+        <link rel="stylesheet" href="/navbar/style.css?v=navbar-ui-1">
+</head>
+
+<body>
+        <header class="drishti-navbar">
+                <div class="nav-left">
+                        <div class="logo-box"><img src="/assets/menu_frontend/mainlogo.png" alt="DrishtiDrive Logo"
+                                        class="logo-img">
+                        </div>
+                        <span class="brand-title"><span class="brand-drishti">Drishti</span><span
+                                        class="brand-drive">Drive</span></span>
+                </div>
+                <nav class="nav-links" aria-label="Primary navigation">
+                        <a href="/" class="nav-item">Home</a>
+                        <a href="/anpr/" class="nav-item active">ANPR</a>
+                        <a href="/tracking/" class="nav-item">Tracking / OCR</a>
+                        <a href="/traffic/" class="nav-item">Traffic</a>
+                </nav>
+        </header>
+
+        <main>
+                <section class="workspace">
+                        <div id="violationAlertBanner">
+                                <div class="alert-copy">
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
+                                        <div>
+                                                <strong>COMPLIANCE SIGNAL DETECTED</strong>
+                                                <p id="alertDetailsText">Vehicle alert details...</p>
+                                        </div>
+                                </div>
+                                <span class="alert-chip">REVIEW REQUIRED</span>
+                        </div>
+
+                        <section class="camera-section">
+                                <div class="section-head">
+                                        <div>
+                                                <h2>Live camera</h2>
+
+                                        </div>
+                                        <span class="count">04 ACTIVE FEEDS</span>
+                                </div>
+                                <div class="camera-grid">
+                                        <div onclick="expandCamera('/anpr/video_feed/1','CAM 01 · Vishesh Tyagi Chowk')"
+                                                class="camera">
+                                                <span class="camera-label"><i class="fa-solid fa-circle"></i> CAM 01 ·
+                                                        Vishesh Tyagi Chowk</span>
+                                                <img src="/anpr/video_feed/1" alt="Camera 1 live feed">
+                                                <span class="expand"><i class="fa-solid fa-expand"></i></span>
+                                        </div>
+                                        <div onclick="expandCamera('/anpr/video_feed/2','CAM 02 · Maharishi Ashram Chowk')"
+                                                class="camera">
+                                                <span class="camera-label"><i class="fa-solid fa-circle"></i> CAM 02 ·
+                                                        Maharishi Ashram Chowk</span>
+                                                <img src="/anpr/video_feed/2" alt="Camera 2 live feed">
+                                                <span class="expand"><i class="fa-solid fa-expand"></i></span>
+                                        </div>
+                                        <div onclick="expandCamera('/anpr/video_feed/3','CAM 03 · Bhangel')"
+                                                class="camera">
+                                                <span class="camera-label"><i class="fa-solid fa-circle"></i> CAM 03 ·
+                                                        Bhangel</span>
+                                                <img src="/anpr/video_feed/3" alt="Camera 3 live feed">
+                                                <span class="expand"><i class="fa-solid fa-expand"></i></span>
+                                        </div>
+                                        <div onclick="expandCamera('/anpr/video_feed/4','CAM 04 · Metro Sec 76')"
+                                                class="camera">
+                                                <span class="camera-label"><i class="fa-solid fa-circle"></i> CAM 04 ·
+                                                        Metro Sec 76</span>
+                                                <img src="/anpr/video_feed/4" alt="Camera 4 live feed">
+                                                <span class="expand"><i class="fa-solid fa-expand"></i></span>
+                                        </div>
+                                </div>
+                        </section>
+
+                        <section class="activity">
+                                <div class="activity-head">
+                                        <h2><i class="fa-solid fa-wave-square"></i>Detection activity</h2>
+                                        <span class="count">REFRESH · 03 SEC</span>
+                                </div>
+                                <div class="table-wrap">
+                                        <table>
+                                                <thead>
+                                                        <tr>
+                                                                <th>TIME</th>
+                                                                <th>CAMERA SOURCE</th>
+                                                                <th>PLATE NUMBER</th>
+                                                                <th>DATABASE STATUS</th>
+                                                        </tr>
+                                                </thead>
+                                                <tbody id="logTableBody"></tbody>
+                                        </table>
+                                </div>
+                        </section>
+                </section>
+
+                <aside class="profile">
+                        <div class="profile-header">
+                                <h2 class="profile-title"><i class="fa-solid fa-fingerprint"></i>Owner intelligence</h2>
+                        </div>
+                        <p class="profile-kicker">Live compliance check</p>
+                        <div class="health">
+                                <div class="health-row">
+                                        <span>Speed status</span>
+                                        <span id="speedAlert">Normal (45 km/h)</span>
+                                </div>
+                                <div class="health-row">
+                                        <span>Registration status</span>
+                                        <span id="rcStatus">Awaiting check</span>
+                                </div>
+                                <div class="health-row">
+                                        <span>Plate validation</span>
+                                        <span id="formatAlert">Valid format</span>
+                                </div>
+                                <div class="health-row">
+                                        <span>Database check</span>
+                                        <span id="dbAlert">Verified in DB</span>
+                                </div>
+                        </div>
+                        <div class="details">
+                                <div>
+                                        <p class="detail-label">Plate number</p>
+                                        <p id="livePlate" class="detail-value plate-value">---</p>
+                                </div>
+                                <div>
+                                        <p class="detail-label">Registered owner</p>
+                                        <p id="liveOwner" class="detail-value">---</p>
+                                </div>
+                                <div>
+                                        <p class="detail-label">Contact & email</p>
+                                        <p id="liveContact" class="detail-value">---</p>
+                                </div>
+                                <div>
+                                        <p class="detail-label">Registered address</p>
+                                        <p id="liveAddress" class="detail-value">---</p>
+                                </div>
+                        </div>
+
+                </aside>
+        </main>
+
+        <div id="expandedModal" class="modal">
+                <div class="modal-box">
+                        <div class="modal-head">
+                                <span id="modalTitle" style="color: #ffffff; font-weight: bold;">Camera feed</span>
+                                <button onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Close</button>
+                        </div>
+                        <div class="modal-image">
+                                <img id="modalImg" alt="Expanded camera feed">
+                        </div>
+                </div>
+        </div>
+
+        <script>
+                function expandCamera(url, title) {
+                        document.getElementById('modalImg').src = url;
+                        document.getElementById('modalTitle').innerText = title + ' · EXPANDED VIEW';
+                        document.getElementById('expandedModal').classList.add('active');
+                }
+
+                function closeModal() {
+                        document.getElementById('expandedModal').classList.remove('active');
+                        document.getElementById('modalImg').src = '';
+                }
+
+                let logHistory = [];
+
+                async function fetchLatestDetection() {
+                        try {
+                                const response = await fetch('/anpr/api/latest-detection');
+                                const data = await response.json();
+                                if (!data.success) return;
+
+                                document.getElementById('livePlate').innerText = data.plate;
+                                document.getElementById('liveOwner').innerText = data.owner_details.owner;
+                                document.getElementById('liveContact').innerText = data.owner_details.phone + ' | ' + data.owner_details.email;
+                                document.getElementById('liveAddress').innerText = data.owner_details.address;
+                                document.getElementById('rcStatus').innerText = data.owner_details.status;
+                                document.getElementById('speedAlert').innerText = data.speed_status;
+
+                                const banner = document.getElementById('violationAlertBanner');
+                                const alertText = document.getElementById('alertDetailsText');
+
+                                if (data.compliance_alert) {
+                                        banner.style.display = 'flex';
+                                        alertText.innerText = data.compliance_alert;
+                                } else {
+                                        banner.style.display = 'none';
+                                }
+
+                                const format = document.getElementById('formatAlert');
+                                format.innerText = data.format_msg;
+                                format.style.color = '#fff200';
+                                document.getElementById('dbAlert').innerText = data.db_status;
+
+                                logHistory.unshift({
+                                        time: data.time,
+                                        camera: data.camera,
+                                        plate: data.plate,
+                                        status: data.compliance_alert ? 'Violation alert' : 'Verified match'
+                                });
+
+                                if (logHistory.length > 15) logHistory.pop();
+
+                                const table = document.getElementById('logTableBody');
+                                table.innerHTML = '';
+                                logHistory.forEach(log => {
+                                        const violation = log.status.includes('Violation');
+                                        table.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${log.time}</td>
+              <td>${log.camera}</td>
+              <td class="plate">${log.plate}</td>
+              <td><span class="badge ${violation ? 'badge-red' : 'badge-green'}">${log.status}</span></td>
+            </tr>
+          `);
+                                });
+                        } catch (error) {
+                                console.error('Error fetching live detection:', error);
+                        }
+                }
+
+                setInterval(fetchLatestDetection, 3000);
+                window.onload = fetchLatestDetection;
+        </script>
+</body>
+
+</html>

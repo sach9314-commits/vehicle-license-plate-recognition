@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRISHTIDRIVE - GIS Tracking Dashboard</title>
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="gis-style.css?v=ui-text-2">
+    <link rel="stylesheet" href="/navbar/style.css?v=navbar-ui-1">
+</head>
+
+<body>
+
+    <header class="drishti-navbar">
+        <div class="nav-left">
+            <div class="logo-box"><img src="/assets/menu_frontend/mainlogo.png" alt="DrishtiDrive Logo"
+                    class="logo-img"></div>
+            <span class="brand-title"><span class="brand-drishti">Drishti</span><span
+                    class="brand-drive">Drive</span></span>
+        </div>
+        <nav class="nav-links" aria-label="Primary navigation">
+            <a href="/" class="nav-item">Home</a>
+            <a href="/anpr/" class="nav-item">ANPR</a>
+            <a href="/tracking/" class="nav-item active">Tracking / OCR</a>
+            <a href="/traffic/" class="nav-item">Traffic</a>
+            <a href="/subscription/?payment=1&amp;next=%2Ftracking%2F" class="nav-item">Payment</a>
+            <span id="demo-access-indicator" class="nav-item" hidden
+                style="background:#7f1d1d;color:#fff;">DEMO ACCESS · NO PAYMENT</span>
+            <button id="cancel-subscription" class="nav-item" type="button" hidden>Cancel renewal</button>
+        </nav>
+    </header>
+
+    <!-- Main Container -->
+    <main class="dashboard-container">
+
+        <!-- LEFT SECTION: Map Embed -->
+        <section class="map-section">
+            <!-- Embed map.html seamlessly inside an iframe -->
+            <iframe id="gis-map" src="map.html?v=prussian-coffee-1" class="map-iframe" title="GIS Map View"></iframe>
+        </section>
+
+        <!-- RIGHT SECTION: Control Panel -->
+        <aside id="tracking-panel" class="sidebar">
+
+            <!-- Search Section -->
+            <div class="sidebar-block">
+                <label class="block-label" for="vehicle-search">Vehicle lookup</label>
+                <div class="search-input-wrapper">
+                    <div class="search-controls">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input id="vehicle-search" type="text" class="search-input"
+                            placeholder="Enter plate number or vehicle ID">
+                        <input id="vehicle-image-upload" class="vehicle-image-upload" type="file" accept="image/*"
+                            aria-label="Upload vehicle image for plate recognition">
+                        <label class="upload-vehicle-image" for="vehicle-image-upload" title="Upload vehicle image">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        </label>
+                    </div>
+                    <button id="uploaded-image-preview" class="uploaded-image-preview" type="button" hidden
+                        aria-label="Zoom uploaded vehicle image">
+                        <img id="uploaded-image-thumbnail" alt="Uploaded vehicle">
+                    </button>
+                </div>
+                <p id="plate-upload-status" class="plate-upload-status" aria-live="polite"></p>
+            </div>
+
+            <!-- Route and vehicle intelligence -->
+            <div class="sidebar-block route-intelligence">
+                <div class="block-header">
+                    <span class="block-label">Route history</span>
+                </div>
+                <div class="route-card">
+                    <div class="time-range">
+                        <label class="datetime-field"><span><i class="fa-solid fa-circle-dot"></i> Start
+                                time</span><input id="route-start" aria-label="Route start time"
+                                type="datetime-local"></label>
+                        <span class="range-divider" aria-hidden="true"><i class="fa-solid fa-arrow-down"></i></span>
+                        <label class="datetime-field"><span><i class="fa-solid fa-location-dot"></i> End
+                                time</span><input id="route-end" aria-label="Route end time"
+                                type="datetime-local"></label>
+                    </div>
+                    <div class="route-summary">
+                        <div class="route-point start-point"><span class="route-marker"></span>
+                            <div><span class="route-label">Point A · Start</span><strong>--</strong><small>--</small>
+                            </div>
+                        </div>
+                        <div class="route-line"></div>
+                        <div class="route-point end-point"><span class="route-marker"></span>
+                            <div><span class="route-label">Point B · End</span><strong>--</strong><small>--</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions"><button id="show-route" class="btn btn-primary" type="button"><i
+                                class="fa-solid fa-route"></i> Show route</button><button id="export-route"
+                            class="btn btn-secondary" type="button"><i class="fa-solid fa-file-arrow-down"></i>
+                            Export</button></div>
+                </div>
+            </div>
+
+            <div class="sidebar-block route-intelligence">
+                <span class="block-label">Vehicle details</span>
+                <div class="details-card">
+                    <div class="asset-info">
+                        <div class="asset-icon"><i class="fa-solid fa-car-side"></i></div>
+                        <div>
+                            <h3 class="asset-title">--</h3>
+                            <p class="asset-subtitle">Search a vehicle to load details</p>
+                        </div>
+                    </div>
+                    <div class="detail-grid">
+                        <div><span>Plate</span><strong>--</strong></div>
+                        <div><span>Status</span><strong>--</strong></div>
+                        <div><span>RC expiry</span><strong>--</strong></div>
+                        <div><span>PUC expiry</span><strong>--</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-block route-intelligence">
+                <div class="block-header"><span class="block-label">Registered owner</span><button
+                        id="view-owner-profile" class="text-action" type="button" aria-haspopup="dialog"><i
+                            class="fa-solid fa-eye"></i> View profile</button></div>
+                <div class="owner-card">
+                    <div class="owner-avatar">--</div>
+                    <div class="owner-name"><strong>--</strong><span>--</span></div>
+                </div>
+            </div>
+
+            <!-- Legacy telemetry retained in markup but hidden; replaced by the route workflow above. -->
+            <div class="sidebar-block">
+                <div class="block-header">
+                    <span class="block-label">GIS Telemetry</span>
+                    <span class="status-tag active">ONLINE</span>
+                </div>
+
+                <div class="telemetry-card">
+                    <div class="asset-info">
+                        <div class="asset-icon">
+                            <i class="fa-solid fa-truck-velocity"></i>
+                        </div>
+                        <div>
+                            <h3 class="asset-title">Fleet Unit #402</h3>
+                            <p class="asset-subtitle">Logistics Express • Active</p>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-title">Speed</span>
+                            <span class="metric-value">64.5 <small>km/h</small></span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-title">Heading</span>
+                            <span class="metric-value">120° <small>SE</small></span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-title">Latitude</span>
+                            <span class="metric-value">28.6139°</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-title">Longitude</span>
+                            <span class="metric-value">77.2090°</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn btn-primary">
+                            <i class="fa-solid fa-crosshairs"></i> Center Target
+                        </button>
+                        <button class="btn btn-secondary">
+                            <i class="fa-solid fa-route"></i> Track History
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GIS Layer Controls -->
+            <div class="sidebar-block">
+                <span class="block-label">Map Overlays</span>
+                <div class="layer-list">
+
+                    <label class="layer-item">
+                        <span class="layer-info">
+                            <i class="fa-solid fa-draw-polygon"></i> Geofence Bounds
+                        </span>
+                        <input type="checkbox" checked class="custom-checkbox">
+                    </label>
+
+                    <label class="layer-item">
+                        <span class="layer-info">
+                            <i class="fa-solid fa-traffic-light"></i> Live Traffic Overlay
+                        </span>
+                        <input type="checkbox" checked class="custom-checkbox">
+                    </label>
+
+                    <label class="layer-item">
+                        <span class="layer-info">
+                            <i class="fa-solid fa-location-dot"></i> Waypoints
+                        </span>
+                        <input type="checkbox" class="custom-checkbox">
+                    </label>
+
+                    <label class="layer-item">
+                        <span class="layer-info">
+                            <i class="fa-solid fa-fire-flame-curved"></i> Density Heatmap
+                        </span>
+                        <input type="checkbox" class="custom-checkbox">
+                    </label>
+
+                </div>
+            </div>
+
+        </aside>
+
+        <button id="panel-toggle" class="panel-toggle" type="button" aria-label="Hide tracking panel"
+            aria-controls="tracking-panel" aria-expanded="true" title="Hide tracking panel">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+    </main>
+
+    <div id="owner-profile-modal" class="profile-modal" hidden role="dialog" aria-modal="true"
+        aria-labelledby="owner-profile-title">
+        <div class="profile-modal-backdrop" data-close-owner-profile></div>
+        <section class="profile-modal-content">
+            <div class="profile-modal-header">
+                <div><span class="block-label">Registered owner</span>
+                    <h2 id="owner-profile-title">Owner profile</h2>
+                </div>
+                <button id="close-owner-profile" class="profile-close" type="button" aria-label="Close owner profile"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="owner-profile-details" class="profile-details"></div>
+        </section>
+    </div>
+
+    <div id="uploaded-image-modal" class="profile-modal image-preview-modal" hidden role="dialog" aria-modal="true"
+        aria-labelledby="uploaded-image-title">
+        <div class="profile-modal-backdrop" data-close-uploaded-image></div>
+        <section class="profile-modal-content">
+            <div class="profile-modal-header">
+                <h2 id="uploaded-image-title">Uploaded vehicle image</h2>
+                <button id="close-uploaded-image" class="profile-close" type="button"
+                    aria-label="Close image preview"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <img id="uploaded-image-full" class="uploaded-image-full" alt="Uploaded vehicle enlarged">
+        </section>
+    </div>
+
+    <script>
+        const panelToggle = document.getElementById('panel-toggle');
+        const trackingPanel = document.getElementById('tracking-panel');
+        const vehicleImageUpload = document.getElementById('vehicle-image-upload');
+        const uploadedImagePreview = document.getElementById('uploaded-image-preview');
+        const uploadedImageThumbnail = document.getElementById('uploaded-image-thumbnail');
+        const uploadedImageModal = document.getElementById('uploaded-image-modal');
+        const uploadedImageFull = document.getElementById('uploaded-image-full');
+        const closeUploadedImageButton = document.getElementById('close-uploaded-image');
+        const vehicleSearch = document.getElementById('vehicle-search');
+        const plateUploadStatus = document.getElementById('plate-upload-status');
+        const searchInputWrapper = vehicleSearch.closest('.search-input-wrapper');
+        const routeStart = document.getElementById('route-start');
+        const routeEnd = document.getElementById('route-end');
+        const showRouteButton = document.getElementById('show-route');
+        const exportRouteButton = document.getElementById('export-route');
+        const mapFrame = document.getElementById('gis-map');
+        const routePoints = document.querySelectorAll('.route-point');
+        const vehicleTitle = document.querySelector('.details-card .asset-title');
+        const vehicleSubtitle = document.querySelector('.details-card .asset-subtitle');
+        const ownerName = document.querySelector('.owner-name strong');
+        const ownerEmail = document.querySelector('.owner-name span');
+        const ownerAvatar = document.querySelector('.owner-avatar');
+        const detailValues = document.querySelectorAll('.details-card .detail-grid strong');
+        const viewOwnerProfileButton = document.getElementById('view-owner-profile');
+        const ownerProfileModal = document.getElementById('owner-profile-modal');
+        const ownerProfileDetails = document.getElementById('owner-profile-details');
+        const closeOwnerProfileButton = document.getElementById('close-owner-profile');
+        const connectionStatus = document.getElementById('connection-status');
+        const cancelSubscriptionButton = document.getElementById('cancel-subscription');
+        const demoAccessIndicator = document.getElementById('demo-access-indicator');
+        let selectedPlate = '';
+        let currentRoute = null;
+        let currentOwner = {};
+        let uploadedImageUrl = '';
+        let searchTimer;
+
+        async function refreshSubscriptionStatus() {
+            const response = await fetch('/api/subscription/status');
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.detail || 'Unable to load subscription status.');
+            demoAccessIndicator.hidden = !data.demo;
+            cancelSubscriptionButton.hidden = !data.active || data.demo || data.cancel_at_cycle_end;
+            if (data.cancel_at_cycle_end) {
+                cancelSubscriptionButton.hidden = false;
+                cancelSubscriptionButton.textContent = 'Renewal cancelled';
+                cancelSubscriptionButton.disabled = true;
+            }
+        }
+
+        cancelSubscriptionButton.addEventListener('click', async () => {
+            if (!window.confirm('Cancel renewal at the end of the current billing period?')) return;
+            cancelSubscriptionButton.disabled = true;
+            try {
+                const response = await fetch('/api/subscription/cancel', { method: 'POST' });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to cancel renewal.');
+                cancelSubscriptionButton.textContent = 'Renewal cancelled';
+            } catch (error) {
+                cancelSubscriptionButton.disabled = false;
+                plateUploadStatus.textContent = error.message;
+                plateUploadStatus.className = 'plate-upload-status is-error';
+            }
+        });
+
+        refreshSubscriptionStatus().catch(error => {
+            plateUploadStatus.textContent = error.message;
+            plateUploadStatus.className = 'plate-upload-status is-error';
+        });
+
+        const toInputDateTime = value => value ? value.slice(0, 16) : '';
+        const sightingText = sighting => {
+            if (!sighting?.timestamp) return '--';
+            const time = new Date(sighting.timestamp);
+            const time24 = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            const period = time.getHours() < 12 ? 'AM' : 'PM';
+            return `${time24} (${period}) · ${sighting.camera_id} · ${sighting.latitude}, ${sighting.longitude}`;
+        };
+
+        function updateRouteSummary(start, end) {
+            const values = [start, end];
+            routePoints.forEach((point, index) => {
+                point.querySelector('strong').textContent = values[index].camera_location;
+                point.querySelector('small').textContent = sightingText(values[index]);
+            });
+        }
+
+        function resetVehicleState() {
+            selectedPlate = '';
+            currentRoute = null;
+            currentOwner = {};
+            routeStart.value = '';
+            routeEnd.value = '';
+            updateRouteSummary({ camera_location: '--', timestamp: '' }, { camera_location: '--', timestamp: '' });
+            vehicleTitle.textContent = '--';
+            vehicleSubtitle.textContent = 'Search a vehicle to load details';
+            detailValues.forEach(value => { value.textContent = '--'; });
+            ownerName.textContent = '--';
+            ownerEmail.textContent = '--';
+            ownerAvatar.textContent = '--';
+            mapFrame.contentWindow.postMessage({ type: 'clear-vehicle-route' }, window.location.origin);
+        }
+
+        function displayValue(value) {
+            return value || 'Not recorded';
+        }
+
+        function setConnectionState(state) {
+            if (!connectionStatus) return;
+            const labels = {
+                idle: 'Waiting for vehicle search',
+                loading: 'Searching for vehicle',
+                success: 'Vehicle search complete'
+            };
+            connectionStatus.className = `status-badge is-${state}`;
+            connectionStatus.setAttribute('aria-label', labels[state]);
+            connectionStatus.title = labels[state];
+        }
+
+        function showUploadedImagePreview(image) {
+            if (uploadedImageUrl) URL.revokeObjectURL(uploadedImageUrl);
+            uploadedImageUrl = URL.createObjectURL(image);
+            uploadedImageThumbnail.src = uploadedImageUrl;
+            uploadedImageFull.src = uploadedImageUrl;
+            uploadedImagePreview.hidden = false;
+            searchInputWrapper.classList.add('has-uploaded-image');
+        }
+
+        function openUploadedImage() {
+            if (!uploadedImageUrl) return;
+            uploadedImageModal.hidden = false;
+            closeUploadedImageButton.focus();
+        }
+
+        function closeUploadedImage() {
+            uploadedImageModal.hidden = true;
+            uploadedImagePreview.focus();
+        }
+
+        function formatOwnerFieldLabel(field) {
+            return field.replaceAll('_', ' ').replace(/\b\w/g, character => character.toUpperCase());
+        }
+
+        function showOwnerProfile() {
+            if (!currentOwner.owner_name) {
+                plateUploadStatus.textContent = 'Search a vehicle with a registered owner first.';
+                plateUploadStatus.className = 'plate-upload-status is-error';
+                return;
+            }
+            const fields = Object.entries(currentOwner).map(([field, value]) => [formatOwnerFieldLabel(field), value]);
+            ownerProfileDetails.replaceChildren(...fields.map(([label, value]) => {
+                const item = document.createElement('div');
+                const fieldLabel = document.createElement('span');
+                const fieldValue = document.createElement('strong');
+                fieldLabel.textContent = label;
+                fieldValue.textContent = displayValue(value);
+                item.append(fieldLabel, fieldValue);
+                return item;
+            }));
+            ownerProfileModal.hidden = false;
+            closeOwnerProfileButton.focus();
+        }
+
+        function closeOwnerProfile() {
+            ownerProfileModal.hidden = true;
+            viewOwnerProfileButton.focus();
+        }
+
+        async function loadVehicle() {
+            const plate = vehicleSearch.value.trim();
+            if (plate === 'Fetching...') return;
+            if (plate.length < 5) {
+                resetVehicleState();
+                setConnectionState('idle');
+                plateUploadStatus.textContent = '';
+                plateUploadStatus.className = 'plate-upload-status';
+                return;
+            }
+            setConnectionState('loading');
+            plateUploadStatus.textContent = 'Loading camera history…';
+            plateUploadStatus.className = 'plate-upload-status is-loading';
+            try {
+                const response = await fetch(`/api/vehicles/${encodeURIComponent(plate)}`);
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Vehicle was not found.');
+                selectedPlate = data.plate_number;
+                vehicleSearch.value = data.plate_number;
+                routeStart.value = toInputDateTime(data.default_start);
+                routeEnd.value = toInputDateTime(data.default_end);
+                updateRouteSummary(data.start_location, data.end_location);
+                vehicleTitle.textContent = data.plate_number;
+                vehicleSubtitle.textContent = `${data.sightings.length} camera sightings on ${data.date}`;
+                const owner = data.owner;
+                currentOwner = owner;
+                ownerName.textContent = owner.owner_name || 'Owner record unavailable';
+                ownerEmail.textContent = owner.email || 'No email recorded';
+                ownerAvatar.textContent = (owner.owner_name || '--').split(' ').map(part => part[0]).slice(0, 2).join('');
+                detailValues[0].textContent = data.plate_number || '--';
+                detailValues[1].textContent = owner.status || '--';
+                detailValues[2].textContent = owner.rc_expiry || '--';
+                detailValues[3].textContent = owner.puc_expiry || '--';
+                currentRoute = { plate_number: data.plate_number, start: data.start_location, end: data.end_location, points: data.sightings };
+                mapFrame.contentWindow.postMessage({ type: 'vehicle-route', route: currentRoute }, window.location.origin);
+                plateUploadStatus.textContent = `${data.sightings.length} sightings loaded.`;
+                plateUploadStatus.className = 'plate-upload-status is-success';
+                setConnectionState('success');
+            } catch (error) {
+                resetVehicleState();
+                plateUploadStatus.textContent = error.message;
+                plateUploadStatus.className = 'plate-upload-status is-error';
+                setConnectionState('idle');
+            }
+        }
+
+        vehicleSearch.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            if (vehicleSearch.value.trim().length < 5 && vehicleSearch.value.trim() !== 'Fetching...') {
+                resetVehicleState();
+            }
+            searchTimer = setTimeout(loadVehicle, 450);
+        });
+        vehicleSearch.addEventListener('keydown', event => {
+            if (event.key === 'Enter') { clearTimeout(searchTimer); loadVehicle(); }
+        });
+
+        viewOwnerProfileButton.addEventListener('click', showOwnerProfile);
+        closeOwnerProfileButton.addEventListener('click', closeOwnerProfile);
+        ownerProfileModal.addEventListener('click', event => {
+            if (event.target.matches('[data-close-owner-profile]')) closeOwnerProfile();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !ownerProfileModal.hidden) closeOwnerProfile();
+            if (event.key === 'Escape' && !uploadedImageModal.hidden) closeUploadedImage();
+        });
+
+        uploadedImagePreview.addEventListener('click', openUploadedImage);
+        closeUploadedImageButton.addEventListener('click', closeUploadedImage);
+        uploadedImageModal.addEventListener('click', event => {
+            if (event.target.matches('[data-close-uploaded-image]')) closeUploadedImage();
+        });
+
+        showRouteButton.addEventListener('click', async () => {
+            if (!selectedPlate || !routeStart.value || !routeEnd.value) {
+                plateUploadStatus.textContent = 'Search a vehicle and choose a valid time range first.';
+                plateUploadStatus.className = 'plate-upload-status is-error';
+                return;
+            }
+            showRouteButton.disabled = true;
+            showRouteButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
+            try {
+                const query = new URLSearchParams({ start: routeStart.value, end: routeEnd.value });
+                const response = await fetch(`/api/vehicles/${encodeURIComponent(selectedPlate)}/route?${query}`);
+                const route = await response.json();
+                if (!response.ok) throw new Error(route.detail || 'Route could not be loaded.');
+                updateRouteSummary(route.start, route.end);
+                currentRoute = route;
+                mapFrame.contentWindow.postMessage({ type: 'vehicle-route', route }, window.location.origin);
+                plateUploadStatus.textContent = `${route.points.length} route points shown on the map.`;
+                plateUploadStatus.className = 'plate-upload-status is-success';
+            } catch (error) {
+                plateUploadStatus.textContent = error.message;
+                plateUploadStatus.className = 'plate-upload-status is-error';
+            } finally {
+                showRouteButton.disabled = false;
+                showRouteButton.innerHTML = '<i class="fa-solid fa-route"></i> Show route';
+            }
+        });
+
+        exportRouteButton.addEventListener('click', async () => {
+            if (!currentRoute?.points?.length) {
+                plateUploadStatus.textContent = 'Click Show route before exporting route data.';
+                plateUploadStatus.className = 'plate-upload-status is-error';
+                return;
+            }
+
+            const headers = ['plate_number', 'camera_id', 'camera_location', 'latitude', 'longitude', 'date', 'time'];
+            const escapeCsv = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+            const csv = [headers, ...currentRoute.points.map(point => headers.map(header => escapeCsv(point[header])))]
+                .map(row => row.join(',')).join('\r\n');
+            const fileName = `${currentRoute.plate_number.replaceAll(' ', '-')}-route-${routeStart.value.replaceAll(':', '-')}.csv`;
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+
+            try {
+                if ('showSaveFilePicker' in window) {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: fileName,
+                        types: [{ description: 'CSV route data', accept: { 'text/csv': ['.csv'] } }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                } else {
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const link = Object.assign(document.createElement('a'), { href: downloadUrl, download: fileName });
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                }
+                plateUploadStatus.textContent = 'Route CSV exported successfully.';
+                plateUploadStatus.className = 'plate-upload-status is-success';
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    plateUploadStatus.textContent = 'Unable to export the route file.';
+                    plateUploadStatus.className = 'plate-upload-status is-error';
+                }
+            }
+        });
+        panelToggle.addEventListener('click', () => {
+            const isCollapsed = trackingPanel.classList.toggle('is-collapsed');
+            document.querySelector('.dashboard-container').classList.toggle('panel-collapsed', isCollapsed);
+            panelToggle.setAttribute('aria-expanded', String(!isCollapsed));
+            panelToggle.title = isCollapsed ? 'Show tracking panel' : 'Hide tracking panel';
+            panelToggle.setAttribute('aria-label', panelToggle.title);
+            panelToggle.innerHTML = isCollapsed
+                ? '<i class="fa-solid fa-chevron-left"></i>'
+                : '<i class="fa-solid fa-chevron-right"></i>';
+        });
+
+        vehicleImageUpload.addEventListener('change', async () => {
+            const [image] = vehicleImageUpload.files;
+            if (!image) return;
+
+            showUploadedImagePreview(image);
+
+            const previousSearchValue = vehicleSearch.value;
+            vehicleSearch.value = 'Fetching...';
+            vehicleSearch.readOnly = true;
+            searchInputWrapper.classList.add('is-fetching');
+            setConnectionState('loading');
+            plateUploadStatus.textContent = 'Reading number plate…';
+            plateUploadStatus.className = 'plate-upload-status is-loading';
+
+            try {
+                const formData = new FormData();
+                formData.append('image', image);
+                const response = await fetch('/api/recognize-plate', { method: 'POST', body: formData });
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch {
+                    throw new Error(`OCR server error (${response.status}). Please check the server terminal.`);
+                }
+
+                if (!response.ok) throw new Error(data.detail || 'Unable to recognize the plate.');
+                if (!data.detected) throw new Error('Number plate was not detected. Try a clearer image.');
+
+                vehicleSearch.value = data.plate;
+                vehicleSearch.dispatchEvent(new Event('input', { bubbles: true }));
+                plateUploadStatus.textContent = `Plate detected: ${data.plate}`;
+                plateUploadStatus.className = 'plate-upload-status is-success';
+            } catch (error) {
+                vehicleSearch.value = previousSearchValue;
+                setConnectionState('idle');
+                plateUploadStatus.textContent = error.message;
+                plateUploadStatus.className = 'plate-upload-status is-error';
+            } finally {
+                vehicleSearch.readOnly = false;
+                searchInputWrapper.classList.remove('is-fetching');
+                vehicleImageUpload.value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+.dist/
+.env
+*.sqlite3
+*.db
+*.pt
+*.mp4
+cloudflared.exe
+.DS_Store
+menu/owner_details.csv
+menu/ANPR/vehicle_data.csv

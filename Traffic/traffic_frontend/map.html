@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- Performance Optimizations: Preconnect to CDNs -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://mt1.google.com">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css" />
+
+    <!-- Deferred Scripts for Unblocked Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js" defer></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"
+        defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"
+        defer></script>
+
+    <style>
+        :root {
+            --prussian-blue: #182239;
+            --white: #FFFFFF;
+            --coffee-bean: #140400;
+            --map-accent-orange: #ff9800;
+            --map-accent-orange-hover: #f57c00;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        .leaflet-container {
+            font-size: 1rem;
+        }
+
+        /* 1. Leaflet Zoom Control Styling */
+        .leaflet-control-zoom {
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 6px !important;
+            overflow: hidden;
+        }
+
+        .leaflet-control-zoom a {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .leaflet-control-zoom a:hover {
+            background-color: #1a1a1a !important;
+            color: var(--map-accent-orange) !important;
+        }
+
+        /* 3. Layer Selector Trigger Button (Black Background) */
+        .map-view-control {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+        }
+
+        .map-view-trigger {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            color: var(--white);
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 9px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .28);
+            cursor: pointer;
+        }
+
+        .map-view-trigger:hover,
+        .map-view-trigger[aria-expanded="true"] {
+            background: #1a1a1a;
+            color: var(--map-accent-orange);
+        }
+
+        .map-view-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 224px;
+            padding: 7px;
+            background: rgba(0, 0, 0, .97);
+            border: 1px solid rgba(255, 255, 255, .3);
+            border-radius: 10px;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .32);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity .18s ease, transform .18s ease, visibility .18s;
+        }
+
+        .map-view-menu.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .map-view-title {
+            padding: 7px 9px 5px;
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .map-view-option {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            color: #fff;
+            background: transparent;
+            border: 0;
+            border-radius: 7px;
+            text-align: left;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .map-view-option:hover,
+        .map-view-option.is-active {
+            background: rgba(255, 255, 255, .16);
+        }
+
+        .map-view-option i {
+            width: 22px;
+            height: 22px;
+            display: grid;
+            place-items: center;
+            color: var(--white);
+            background: #000000;
+            border-radius: 5px;
+        }
+
+        .map-view-option.is-active i {
+            color: #000000;
+            background: var(--map-accent-orange);
+        }
+
+        .map-view-option span {
+            flex: 1;
+        }
+
+        .map-view-option .fa-check {
+            width: auto;
+            height: auto;
+            background: none;
+            color: var(--white);
+            visibility: hidden;
+        }
+
+        .map-view-option.is-active .fa-check {
+            visibility: visible;
+        }
+
+        .map-view-divider {
+            height: 1px;
+            margin: 5px 2px;
+            background: rgba(251, 251, 251, .12);
+        }
+
+        .map-overlay-option {
+            color: var(--white);
+        }
+
+        .map-overlay-option.is-active {
+            color: #fff;
+        }
+
+        /* 2. Camera Shortcuts Panel & Buttons (Orange Accent) */
+        #cam-nav-panel {
+            background: #000000 !important;
+            border-color: rgba(255, 255, 255, .3) !important;
+        }
+
+        .camera-shortcuts-title {
+            color: var(--white) !important;
+        }
+
+        .camera-shortcut {
+            background: var(--map-accent-orange) !important;
+            color: #000000 !important;
+        }
+
+        .camera-shortcut:hover {
+            background: var(--map-accent-orange-hover) !important;
+            color: #000000 !important;
+        }
+
+        /* Keep road-routing instructions out of the dashboard map. */
+        .leaflet-routing-container {
+            display: none;
+        }
+
+        @keyframes route-dash-flow {
+            50% {
+                stroke-dashoffset: -12;
+            }
+
+            100% {
+                stroke-dashoffset: -24;
+            }
+        }
+
+        .route-running-line {
+            stroke-dasharray: 12 12;
+            animation: route-dash-flow 2s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Camera Navigation Panel -->
+    <div id="cam-nav-panel" style="
+        position: absolute;
+        bottom: 25px;
+        left: 15px;
+        z-index: 1000;
+        background: #000000;
+        backdrop-filter: blur(8px);
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        font-family: Arial, sans-serif;">
+        <div class="camera-shortcuts-title"
+            style="font-size: 11px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+            Camera Shortcuts
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="camera-shortcut" onclick="panToCam(28.522604, 77.392690)"
+                style="border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;">C1</button>
+            <button class="camera-shortcut" onclick="panToCam(28.535277, 77.385791)"
+                style="border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;">C2</button>
+            <button class="camera-shortcut" onclick="panToCam(28.541295, 77.387591)"
+                style="border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;">C3</button>
+            <button class="camera-shortcut" onclick="panToCam(28.565111, 77.379861)"
+                style="border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;">C4</button>
+        </div>
+    </div>
+
+    <!-- Map Div Container -->
+    <div class="folium-map" id="map"></div>
+
+    <!-- Compact map view selector -->
+    <div class="map-view-control">
+        <button id="map-view-trigger" class="map-view-trigger" type="button" aria-label="Choose map view"
+            aria-expanded="false">
+            <i class="fa-solid fa-layer-group"></i>
+        </button>
+        <div id="map-view-menu" class="map-view-menu" role="menu">
+            <div class="map-view-title">Map view</div>
+            <button class="map-view-option is-active" type="button" data-layer="streets" role="menuitem"><i
+                    class="fa-solid fa-map"></i><span>Google Streets</span><i class="fa-solid fa-check"></i></button>
+            <button class="map-view-option" type="button" data-layer="satellite" role="menuitem"><i
+                    class="fa-solid fa-satellite"></i><span>Google Satellite (HD)</span><i
+                    class="fa-solid fa-check"></i></button>
+            <button class="map-view-option" type="button" data-layer="terrain" role="menuitem"><i
+                    class="fa-solid fa-mountain-sun"></i><span>Google Terrain</span><i
+                    class="fa-solid fa-check"></i></button>
+            <div class="map-view-divider"></div>
+            <button id="vehicle-overlay-toggle" class="map-view-option map-overlay-option is-active" type="button"
+                role="menuitemcheckbox" aria-checked="true"><i class="fa-solid fa-car-side"></i><span>Live Vehicle
+                    Detections</span><i class="fa-solid fa-check"></i></button>
+        </div>
+    </div>
+
+    <script>
+        var mapInstance;
+
+        function panToCam(lat, lon) {
+            if (mapInstance) {
+                mapInstance.flyTo([lat, lon], 18, {
+                    animate: true,
+                    duration: 1.2
+                });
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+
+            // Initialize map with GPU canvas acceleration
+            mapInstance = L.map("map", {
+                center: [28.541295, 77.387591],
+                zoom: 13,
+                crs: L.CRS.EPSG3857,
+                zoomControl: true,
+                preferCanvas: true, // GPU Acceleration enabled
+                scrollWheelZoom: true,
+                dragging: true
+            });
+
+            L.control.scale().addTo(mapInstance);
+
+            // Tile Layers Definition
+            var tile_streets = L.tileLayer("https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", {
+                minZoom: 0, maxZoom: 20, maxNativeZoom: 20, attribution: "Google Maps", subdomains: ["0", "1", "2", "3"]
+            });
+
+            var tile_satellite = L.tileLayer("https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+                minZoom: 0, maxZoom: 20, maxNativeZoom: 20, attribution: "Google Satellite", subdomains: ["0", "1", "2", "3"]
+            });
+
+            var tile_terrain = L.tileLayer("https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}", {
+                minZoom: 0, maxZoom: 20, maxNativeZoom: 20, attribution: "Google Terrain", subdomains: ["0", "1", "2", "3"]
+            });
+
+            // ADD ONLY ONE BASE TILE LAYER ON STARTUP TO PREVENT TRIPLE DOWNLOADING
+            tile_streets.addTo(mapInstance);
+
+            // Define Camera Icon Factory (Matching Orange markers)
+            function createCamIcon() {
+                return L.AwesomeMarkers.icon({
+                    markerColor: "orange",
+                    iconColor: "white",
+                    icon: "video-camera",
+                    prefix: "fa",
+                    extraClasses: "fa-rotate-0"
+                });
+            }
+
+            // Add Cameras
+            var cameras = [
+                { name: "Camera 1", lat: 28.522604, lon: 77.392690 },
+                { name: "Camera 2", lat: 28.535277, lon: 77.385791 },
+                { name: "Camera 3", lat: 28.541295, lon: 77.387591 },
+                { name: "Camera 4", lat: 28.565111, lon: 77.379861 }
+            ];
+
+            cameras.forEach(function (cam) {
+                var m = L.marker([cam.lat, cam.lon], { icon: createCamIcon() }).addTo(mapInstance);
+                m.bindPopup(`<div style="font-family: sans-serif; font-size: 12px; color: #0f172a; width: 150px;">
+                    <b style="color: #182239; font-size: 14px;">${cam.name}</b><br>
+                    <span style="color: #ffffff;">Lat: ${cam.lat}</span><br>
+                    <span style="color: #ffffff;">Lon: ${cam.lon}</span><br>
+                    <span style="color: #16a34a; font-weight: bold;">● Live Stream</span>
+                </div>`, { maxWidth: 200 });
+                m.bindTooltip(`<div>${cam.name} Node</div>`, { sticky: true });
+            });
+
+            // Traffic circles are refreshed from distinct plate counts in the CSV files.
+            var trafficLayer = L.layerGroup().addTo(mapInstance);
+            var trafficVisible = true;
+
+            function renderTraffic(data) {
+                trafficLayer.clearLayers();
+                data.forEach(function (camera) {
+                    var marker = L.circle([camera.lat, camera.lng], {
+                        radius: 700,
+                        color: camera.color,
+                        fillColor: camera.color,
+                        fillOpacity: 0.38,
+                        weight: 3
+                    });
+                    marker.bindPopup(`<b>${camera.name}</b><br>${camera.vehicle_count} distinct vehicles<br><span style="color:${camera.color}; font-weight:bold;">${camera.traffic_level.toUpperCase()} TRAFFIC</span>`);
+                    marker.bindTooltip(`${camera.vehicle_count} vehicles`, { sticky: true });
+                    trafficLayer.addLayer(marker);
+                });
+            }
+
+            async function refreshTraffic() {
+                try {
+                    var response = await fetch('api/traffic-data', { cache: 'no-store' });
+                    if (!response.ok) throw new Error('Traffic data request failed');
+                    var payload = await response.json();
+                    renderTraffic(payload.cameras || []);
+                } catch (error) {
+                    console.error('Unable to refresh traffic heatmap:', error);
+                }
+            }
+
+            refreshTraffic();
+            setInterval(refreshTraffic, 5000);
+
+            // Compact custom view selector
+            var baseLayers = { streets: tile_streets, satellite: tile_satellite, terrain: tile_terrain };
+            var viewTrigger = document.getElementById('map-view-trigger');
+            var viewMenu = document.getElementById('map-view-menu');
+            var overlayToggle = document.getElementById('vehicle-overlay-toggle');
+
+            viewTrigger.addEventListener('click', function (event) {
+                event.stopPropagation();
+                var isOpen = viewMenu.classList.toggle('is-open');
+                viewTrigger.setAttribute('aria-expanded', String(isOpen));
+            });
+
+            document.querySelectorAll('[data-layer]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    Object.keys(baseLayers).forEach(function (key) { mapInstance.removeLayer(baseLayers[key]); });
+                    baseLayers[button.dataset.layer].addTo(mapInstance);
+                    document.querySelectorAll('[data-layer]').forEach(function (item) { item.classList.remove('is-active'); });
+                    button.classList.add('is-active');
+                    viewMenu.classList.remove('is-open');
+                    viewTrigger.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            overlayToggle.addEventListener('click', function () {
+                trafficVisible = !trafficVisible;
+                if (trafficVisible) mapInstance.addLayer(trafficLayer);
+                else mapInstance.removeLayer(trafficLayer);
+                overlayToggle.classList.toggle('is-active', trafficVisible);
+                overlayToggle.setAttribute('aria-checked', String(trafficVisible));
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.map-view-control')) {
+                    viewMenu.classList.remove('is-open');
+                    viewTrigger.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Receive a time-filtered vehicle route from the dashboard iframe parent.
+            var activeRouteLayer = L.layerGroup().addTo(mapInstance);
+            var roadRoutingControl = null;
+            window.addEventListener('message', function (event) {
+                if (event.origin !== window.location.origin || event.data?.type !== 'vehicle-route') return;
+                var route = event.data.route;
+                activeRouteLayer.clearLayers();
+                var coordinates = route.points.map(function (point) { return [Number(point.latitude), Number(point.longitude)]; });
+                if (roadRoutingControl) {
+                    mapInstance.removeControl(roadRoutingControl);
+                    roadRoutingControl = null;
+                }
+
+                // OSRM calculates the geometry along drivable roads instead of drawing a straight line.
+                if (coordinates.length > 1 && window.L.Routing) {
+                    roadRoutingControl = L.Routing.control({
+                        waypoints: coordinates.map(function (coordinate) { return L.latLng(coordinate[0], coordinate[1]); }),
+                        router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1' }),
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        fitSelectedRoutes: true,
+                        show: false,
+                        createMarker: function () { return null; },
+                        lineOptions: { styles: [{ color: '#182239', opacity: .98, weight: 6 }] }
+                    }).addTo(mapInstance);
+                    roadRoutingControl.on('routingerror', function () {
+                        L.polyline(coordinates, { color: '#182239', weight: 6, opacity: .98 }).addTo(activeRouteLayer);
+                    });
+                } else {
+                    L.polyline(coordinates, { color: '#182239', weight: 6, opacity: .98 }).addTo(activeRouteLayer);
+                }
+                route.points.forEach(function (point, index) {
+                    var isStart = index === 0;
+                    var isEnd = index === route.points.length - 1;
+                    L.circleMarker([Number(point.latitude), Number(point.longitude)], {
+                        radius: isStart || isEnd ? 9 : 6,
+                        color: isEnd ? '#FFFFFF' : '#182239', fillColor: isEnd ? '#FFFFFF' : '#182239', fillOpacity: 1, weight: 3
+                    }).bindPopup(`<b>${isStart ? 'Start' : isEnd ? 'End' : 'Sighting'} · ${point.camera_id}</b><br>${point.camera_location}<br>${point.date} ${point.time}`).addTo(activeRouteLayer);
+                });
+                if (coordinates.length === 1) mapInstance.flyTo(coordinates[0], 17);
+                else mapInstance.fitBounds(L.latLngBounds(coordinates), { padding: [45, 45], maxZoom: 17 });
+            });
+
+            // Global Click Focus Handler
+            mapInstance.on('click', function (e) {
+                mapInstance.flyTo(e.latlng, 18, { animate: true, duration: 1.0 });
+            });
+
+            // Instant Resize Fix for Dashboard Embeds
+            setTimeout(function () {
+                mapInstance.invalidateSize();
+            }, 100);
+        });
+    </script>
+</body>
+
+</html>

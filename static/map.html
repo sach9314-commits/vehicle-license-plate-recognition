@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css" />
+
+    <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        #map_6d637cbb3c6b9a9057a3e4707c64529d {
+            position: relative;
+            width: 100.0%;
+            height: 100.0%;
+            left: 0.0%;
+            top: 0.0%;
+        }
+
+        .leaflet-container {
+            font-size: 1rem;
+        }
+
+        .compact-layer-control { font-family: Arial, sans-serif; position: relative; }
+        .compact-layer-trigger { width: 42px; height: 42px; display: grid; place-items: center; color: #e8eaed; background: #2b2f36; border: 1px solid #3a3e46; border-radius: 9px; box-shadow: 0 4px 16px rgba(0,0,0,.28); cursor: pointer; }
+        .compact-layer-trigger:hover, .compact-layer-trigger.open { background: #3d6d9a; }
+        .compact-layer-menu { position: absolute; top: 50px; right: 0; width: 224px; padding: 7px; display: none; background: rgba(34,37,43,.97); border: 1px solid #3a3e46; border-radius: 10px; box-shadow: 0 10px 26px rgba(0,0,0,.32); }
+        .compact-layer-menu.open { display: block; }
+        .compact-layer-menu small { display: block; padding: 7px 9px 5px; color: #a8adb7; font-size: 10px; font-weight: bold; letter-spacing: .08em; text-transform: uppercase; }
+        .compact-layer-option { width: 100%; display: flex; align-items: center; gap: 10px; padding: 8px; color: #e8eaed; background: transparent; border: 0; border-radius: 7px; text-align: left; font-size: 12px; cursor: pointer; }
+        .compact-layer-option:hover, .compact-layer-option.active { background: rgba(61,109,154,.32); }
+        .compact-layer-option i:first-child { width: 22px; height: 22px; display: grid; place-items: center; color: #78a5cc; background: rgba(61,109,154,.24); border-radius: 5px; }
+        .compact-layer-option.active i:first-child { color: #e8eaed; background: #3d6d9a; }
+        .compact-layer-option span { flex: 1; }
+        .compact-layer-option .fa-check { color: #78a5cc; visibility: hidden; }
+        .compact-layer-option.active .fa-check { visibility: visible; }
+        .compact-layer-divider { height: 1px; margin: 5px 2px; background: rgba(251,251,251,.12); }
+    </style>
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <style>
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+    </style>
+
+    <script>
+        L_NO_TOUCH = false;
+        L_DISABLE_3D = false;
+    </script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css" />
+</head>
+
+<body>
+
+
+    <!-- Bottom-Left Camera Navigation Overlay -->
+    <div id="cam-nav-panel" style="
+        position: absolute;
+        bottom: 25px;
+        left: 15px;
+        z-index: 1000;
+        background: rgba(15, 23, 42, 0.90);
+        backdrop-filter: blur(8px);
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        font-family: Arial, sans-serif;">
+        <div
+            style="color: #94a3b8; font-size: 11px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
+            Camera Shortcuts
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="panToCam(28.533652, 77.385166)"
+                style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;">C1</button>
+            <button onclick="panToCam(28.535277, 77.385791)"
+                style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;">C2</button>
+            <button onclick="panToCam(28.541295, 77.387591)"
+                style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;">C3</button>
+            <button onclick="panToCam(28.552300, 77.376177)"
+                style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;">C4</button>
+        </div>
+    </div>
+
+    <script>
+        function panToCam(lat, lon) {
+            var mapInstance = map_6d637cbb3c6b9a9057a3e4707c64529d;
+            mapInstance.flyTo([lat, lon], 18, {
+                animate: true,
+                duration: 1.2
+            });
+        }
+
+        // Universal click to focus anywhere
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var mapInstance = map_6d637cbb3c6b9a9057a3e4707c64529d;
+                mapInstance.on('click', function (e) {
+                    mapInstance.flyTo(e.latlng, 18, {
+                        animate: true,
+                        duration: 1.0
+                    });
+                });
+            }, 500);
+        });
+    </script>
+
+
+    <div class="folium-map" id="map_6d637cbb3c6b9a9057a3e4707c64529d"></div>
+
+</body>
+<script>
+
+
+    var map_6d637cbb3c6b9a9057a3e4707c64529d = L.map(
+        "map_6d637cbb3c6b9a9057a3e4707c64529d",
+        {
+            center: [28.541295, 77.387591],
+            crs: L.CRS.EPSG3857,
+            ...{
+                "zoom": 14,
+                "zoomControl": true,
+                "preferCanvas": false,
+                "scrollWheelZoom": true,
+                "dragging": true,
+            }
+
+        }
+    );
+    L.control.scale().addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+
+
+
+    var tile_layer_0df35a3e5df6d3a13a8ad9bf0221ee4f = L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=m\u0026x={x}\u0026y={y}\u0026z={z}",
+        {
+            "minZoom": 0,
+            "maxZoom": 20,
+            "maxNativeZoom": 20,
+            "noWrap": false,
+            "attribution": "Google Maps",
+            "subdomains": [
+                "mt0",
+                "mt1",
+                "mt2",
+                "mt3",
+            ],
+            "detectRetina": false,
+            "tms": false,
+            "opacity": 1,
+        }
+
+    );
+
+
+    tile_layer_0df35a3e5df6d3a13a8ad9bf0221ee4f.addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var tile_layer_8e3d9393035a65c02966d9e6c71e03e9 = L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=y\u0026x={x}\u0026y={y}\u0026z={z}",
+        {
+            "minZoom": 0,
+            "maxZoom": 20,
+            "maxNativeZoom": 20,
+            "noWrap": false,
+            "attribution": "Google Satellite",
+            "subdomains": [
+                "mt0",
+                "mt1",
+                "mt2",
+                "mt3",
+            ],
+            "detectRetina": false,
+            "tms": false,
+            "opacity": 1,
+        }
+
+    );
+
+
+    tile_layer_8e3d9393035a65c02966d9e6c71e03e9.addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var tile_layer_f592024fe63a2acf241ccf7f156f2ab6 = L.tileLayer(
+        "https://mt1.google.com/vt/lyrs=p\u0026x={x}\u0026y={y}\u0026z={z}",
+        {
+            "minZoom": 0,
+            "maxZoom": 20,
+            "maxNativeZoom": 20,
+            "noWrap": false,
+            "attribution": "Google Terrain",
+            "subdomains": [
+                "mt0",
+                "mt1",
+                "mt2",
+                "mt3",
+            ],
+            "detectRetina": false,
+            "tms": false,
+            "opacity": 1,
+        }
+
+    );
+
+
+    tile_layer_f592024fe63a2acf241ccf7f156f2ab6.addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var marker_96256518707b955849b6b9e6bfb3cb50 = L.marker(
+        [28.533652, 77.385166],
+        {
+        }
+    ).addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var icon_0e411e2e964d293c5ce516b42b98243f = L.AwesomeMarkers.icon(
+        {
+            "markerColor": "blue",
+            "iconColor": "white",
+            "icon": "video-camera",
+            "prefix": "fa",
+            "extraClasses": "fa-rotate-0",
+        }
+    );
+
+
+    var popup_3404ef6730068317bcbbce7862695904 = L.popup({
+        "maxWidth": 200,
+    });
+
+
+
+    var html_0ba6f3b8806603a1b8d2850c7431729e = $(`<div id="html_0ba6f3b8806603a1b8d2850c7431729e" style="width: 100.0%; height: 100.0%;">         <div style="font-family: sans-serif; font-size: 12px; color: #0f172a; width: 150px;">             <b style="color: #1e3a8a; font-size: 14px;">Camera 1</b><br>             <span style="color: #475569;">Lat: 28.533652</span><br>             <span style="color: #475569;">Lon: 77.385166</span><br>             <span style="color: #16a34a; font-weight: bold;">● Live Stream</span>         </div>         </div>`)[0];
+    popup_3404ef6730068317bcbbce7862695904.setContent(html_0ba6f3b8806603a1b8d2850c7431729e);
+
+
+
+    marker_96256518707b955849b6b9e6bfb3cb50.bindPopup(popup_3404ef6730068317bcbbce7862695904)
+        ;
+
+
+
+
+    marker_96256518707b955849b6b9e6bfb3cb50.bindTooltip(
+        `<div>
+                     Camera 1 Node
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    marker_96256518707b955849b6b9e6bfb3cb50.setIcon(icon_0e411e2e964d293c5ce516b42b98243f);
+
+
+    var marker_5bb9e15fd677458e753374232bda9826 = L.marker(
+        [28.535277, 77.385791],
+        {
+        }
+    ).addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var icon_42e2010ee24034898737e0c0497f5542 = L.AwesomeMarkers.icon(
+        {
+            "markerColor": "blue",
+            "iconColor": "white",
+            "icon": "video-camera",
+            "prefix": "fa",
+            "extraClasses": "fa-rotate-0",
+        }
+    );
+
+
+    var popup_325d2172097f37334b28db6963e3526b = L.popup({
+        "maxWidth": 200,
+    });
+
+
+
+    var html_a00d979c9bafbf468fab5d87d555f204 = $(`<div id="html_a00d979c9bafbf468fab5d87d555f204" style="width: 100.0%; height: 100.0%;">         <div style="font-family: sans-serif; font-size: 12px; color: #0f172a; width: 150px;">             <b style="color: #1e3a8a; font-size: 14px;">Camera 2</b><br>             <span style="color: #475569;">Lat: 28.535277</span><br>             <span style="color: #475569;">Lon: 77.385791</span><br>             <span style="color: #16a34a; font-weight: bold;">● Live Stream</span>         </div>         </div>`)[0];
+    popup_325d2172097f37334b28db6963e3526b.setContent(html_a00d979c9bafbf468fab5d87d555f204);
+
+
+
+    marker_5bb9e15fd677458e753374232bda9826.bindPopup(popup_325d2172097f37334b28db6963e3526b)
+        ;
+
+
+
+
+    marker_5bb9e15fd677458e753374232bda9826.bindTooltip(
+        `<div>
+                     Camera 2 Node
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    marker_5bb9e15fd677458e753374232bda9826.setIcon(icon_42e2010ee24034898737e0c0497f5542);
+
+
+    var marker_4bdc85a702dbd3f8be40294db0603068 = L.marker(
+        [28.541295, 77.387591],
+        {
+        }
+    ).addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var icon_fcee49e460cb95c33dd8c730c23159b8 = L.AwesomeMarkers.icon(
+        {
+            "markerColor": "blue",
+            "iconColor": "white",
+            "icon": "video-camera",
+            "prefix": "fa",
+            "extraClasses": "fa-rotate-0",
+        }
+    );
+
+
+    var popup_e101c14c087349817eba7f808cf01953 = L.popup({
+        "maxWidth": 200,
+    });
+
+
+
+    var html_3f7cd19b88652394f59dfe95a40ae2f7 = $(`<div id="html_3f7cd19b88652394f59dfe95a40ae2f7" style="width: 100.0%; height: 100.0%;">         <div style="font-family: sans-serif; font-size: 12px; color: #0f172a; width: 150px;">             <b style="color: #1e3a8a; font-size: 14px;">Camera 3</b><br>             <span style="color: #475569;">Lat: 28.541295</span><br>             <span style="color: #475569;">Lon: 77.387591</span><br>             <span style="color: #16a34a; font-weight: bold;">● Live Stream</span>         </div>         </div>`)[0];
+    popup_e101c14c087349817eba7f808cf01953.setContent(html_3f7cd19b88652394f59dfe95a40ae2f7);
+
+
+
+    marker_4bdc85a702dbd3f8be40294db0603068.bindPopup(popup_e101c14c087349817eba7f808cf01953)
+        ;
+
+
+
+
+    marker_4bdc85a702dbd3f8be40294db0603068.bindTooltip(
+        `<div>
+                     Camera 3 Node
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    marker_4bdc85a702dbd3f8be40294db0603068.setIcon(icon_fcee49e460cb95c33dd8c730c23159b8);
+
+
+    var marker_bdc42215a6c82096894a7d94559abad1 = L.marker(
+        [28.5523, 77.376177],
+        {
+        }
+    ).addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var icon_9a921d77918c17e81468a4d88c1969ae = L.AwesomeMarkers.icon(
+        {
+            "markerColor": "blue",
+            "iconColor": "white",
+            "icon": "video-camera",
+            "prefix": "fa",
+            "extraClasses": "fa-rotate-0",
+        }
+    );
+
+
+    var popup_1f23f7ec95938a60190b7ca00c49b51a = L.popup({
+        "maxWidth": 200,
+    });
+
+
+
+    var html_265b93381ad8f9da8a15c13db02ce428 = $(`<div id="html_265b93381ad8f9da8a15c13db02ce428" style="width: 100.0%; height: 100.0%;">         <div style="font-family: sans-serif; font-size: 12px; color: #0f172a; width: 150px;">             <b style="color: #1e3a8a; font-size: 14px;">Camera 4</b><br>             <span style="color: #475569;">Lat: 28.5523</span><br>             <span style="color: #475569;">Lon: 77.376177</span><br>             <span style="color: #16a34a; font-weight: bold;">● Live Stream</span>         </div>         </div>`)[0];
+    popup_1f23f7ec95938a60190b7ca00c49b51a.setContent(html_265b93381ad8f9da8a15c13db02ce428);
+
+
+
+    marker_bdc42215a6c82096894a7d94559abad1.bindPopup(popup_1f23f7ec95938a60190b7ca00c49b51a)
+        ;
+
+
+
+
+    marker_bdc42215a6c82096894a7d94559abad1.bindTooltip(
+        `<div>
+                     Camera 4 Node
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    marker_bdc42215a6c82096894a7d94559abad1.setIcon(icon_9a921d77918c17e81468a4d88c1969ae);
+
+
+    var marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8 = L.markerClusterGroup(
+        {
+        }
+    );
+
+
+    var circle_marker_5b13374696cb3560f3ee6fcd00078b3c = L.circleMarker(
+        [28.533652, 77.385166],
+        { "bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3b82f6", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7, "stroke": true, "weight": 3 }
+    ).addTo(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+
+
+    var popup_6ccb90bfe16f6e65a275e9eb2ba8aa13 = L.popup({
+        "maxWidth": 220,
+    });
+
+
+
+    var html_baa5f87209faf6315a1f6a7e72910afd = $(`<div id="html_baa5f87209faf6315a1f6a7e72910afd" style="width: 100.0%; height: 100.0%;">         <div style="font-family: monospace; font-size: 12px; color: #0f172a; width: 170px;">             <b style="color: #2563eb; font-size: 14px;">PB54H0997</b><br>             <hr style="margin: 4px 0;">             <b>Owner:</b> Priya Verma<br>             <b>Detected At:</b> Camera 1         </div>         </div>`)[0];
+    popup_6ccb90bfe16f6e65a275e9eb2ba8aa13.setContent(html_baa5f87209faf6315a1f6a7e72910afd);
+
+
+
+    circle_marker_5b13374696cb3560f3ee6fcd00078b3c.bindPopup(popup_6ccb90bfe16f6e65a275e9eb2ba8aa13)
+        ;
+
+
+
+
+    circle_marker_5b13374696cb3560f3ee6fcd00078b3c.bindTooltip(
+        `<div>
+                     Vehicle: PB54H0997
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    var circle_marker_a8a831c517cebb12037cc91eaf9b6c2f = L.circleMarker(
+        [28.535277, 77.385791],
+        { "bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3b82f6", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7, "stroke": true, "weight": 3 }
+    ).addTo(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+
+
+    var popup_eeccc81cc975ed7c01e1d5e726b010a1 = L.popup({
+        "maxWidth": 220,
+    });
+
+
+
+    var html_b91d86d8fdddd17260593d28813ff9f4 = $(`<div id="html_b91d86d8fdddd17260593d28813ff9f4" style="width: 100.0%; height: 100.0%;">         <div style="font-family: monospace; font-size: 12px; color: #0f172a; width: 170px;">             <b style="color: #2563eb; font-size: 14px;">CH01BL5800</b><br>             <hr style="margin: 4px 0;">             <b>Owner:</b> Aarav Sharma<br>             <b>Detected At:</b> Camera 2         </div>         </div>`)[0];
+    popup_eeccc81cc975ed7c01e1d5e726b010a1.setContent(html_b91d86d8fdddd17260593d28813ff9f4);
+
+
+
+    circle_marker_a8a831c517cebb12037cc91eaf9b6c2f.bindPopup(popup_eeccc81cc975ed7c01e1d5e726b010a1)
+        ;
+
+
+
+
+    circle_marker_a8a831c517cebb12037cc91eaf9b6c2f.bindTooltip(
+        `<div>
+                     Vehicle: CH01BL5800
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    var circle_marker_1523609fe89f3a75385a22cf7eea2624 = L.circleMarker(
+        [28.541295, 77.387591],
+        { "bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3b82f6", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7, "stroke": true, "weight": 3 }
+    ).addTo(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+
+
+    var popup_6cdc5f8330634a4c471b42201279d42a = L.popup({
+        "maxWidth": 220,
+    });
+
+
+
+    var html_1b940dffaaf5144a1f403216d92c99ee = $(`<div id="html_1b940dffaaf5144a1f403216d92c99ee" style="width: 100.0%; height: 100.0%;">         <div style="font-family: monospace; font-size: 12px; color: #0f172a; width: 170px;">             <b style="color: #2563eb; font-size: 14px;">HR03V0440</b><br>             <hr style="margin: 4px 0;">             <b>Owner:</b> Sneha Deshmukh<br>             <b>Detected At:</b> Camera 3         </div>         </div>`)[0];
+    popup_6cdc5f8330634a4c471b42201279d42a.setContent(html_1b940dffaaf5144a1f403216d92c99ee);
+
+
+
+    circle_marker_1523609fe89f3a75385a22cf7eea2624.bindPopup(popup_6cdc5f8330634a4c471b42201279d42a)
+        ;
+
+
+
+
+    circle_marker_1523609fe89f3a75385a22cf7eea2624.bindTooltip(
+        `<div>
+                     Vehicle: HR03V0440
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    var circle_marker_9170c8a05764db867d062bede0256451 = L.circleMarker(
+        [28.5523, 77.376177],
+        { "bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3b82f6", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7, "stroke": true, "weight": 3 }
+    ).addTo(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+
+
+    var popup_e34ffe308d762bdf4dad5d6fda73cc6b = L.popup({
+        "maxWidth": 220,
+    });
+
+
+
+    var html_3c87fea5a3e0444b2607d4c77fb45fde = $(`<div id="html_3c87fea5a3e0444b2607d4c77fb45fde" style="width: 100.0%; height: 100.0%;">         <div style="font-family: monospace; font-size: 12px; color: #0f172a; width: 170px;">             <b style="color: #2563eb; font-size: 14px;">CH01CJ4751</b><br>             <hr style="margin: 4px 0;">             <b>Owner:</b> Ananya Hegde<br>             <b>Detected At:</b> Camera 4         </div>         </div>`)[0];
+    popup_e34ffe308d762bdf4dad5d6fda73cc6b.setContent(html_3c87fea5a3e0444b2607d4c77fb45fde);
+
+
+
+    circle_marker_9170c8a05764db867d062bede0256451.bindPopup(popup_e34ffe308d762bdf4dad5d6fda73cc6b)
+        ;
+
+
+
+
+    circle_marker_9170c8a05764db867d062bede0256451.bindTooltip(
+        `<div>
+                     Vehicle: CH01CJ4751
+                 </div>`,
+        {
+            "sticky": true,
+        }
+    );
+
+
+    marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8.addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+
+    var layer_control_cc65c2c2273bb7f28535c51e656d4fed_layers = {
+        base_layers: {
+            "Google Streets": tile_layer_0df35a3e5df6d3a13a8ad9bf0221ee4f,
+            "Google Satellite (HD)": tile_layer_8e3d9393035a65c02966d9e6c71e03e9,
+            "Google Terrain": tile_layer_f592024fe63a2acf241ccf7f156f2ab6,
+        },
+        overlays: {
+            "Live Vehicle Detections": marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8,
+        },
+    };
+    var compactLayerControl = L.control({ position: "topright" });
+    compactLayerControl.onAdd = function () {
+        var container = L.DomUtil.create("div", "compact-layer-control");
+        container.innerHTML = `
+            <button class="compact-layer-trigger" type="button" aria-label="Choose map view"><i class="fa-solid fa-layer-group"></i></button>
+            <div class="compact-layer-menu">
+                <small>Map view</small>
+                <button class="compact-layer-option active" data-layer="streets"><i class="fa-solid fa-map"></i><span>Google Streets</span><i class="fa-solid fa-check"></i></button>
+                <button class="compact-layer-option" data-layer="satellite"><i class="fa-solid fa-satellite"></i><span>Google Satellite (HD)</span><i class="fa-solid fa-check"></i></button>
+                <button class="compact-layer-option" data-layer="terrain"><i class="fa-solid fa-mountain-sun"></i><span>Google Terrain</span><i class="fa-solid fa-check"></i></button>
+                <div class="compact-layer-divider"></div>
+                <button class="compact-layer-option active" data-layer="vehicles"><i class="fa-solid fa-car-side"></i><span>Live Vehicle Detections</span><i class="fa-solid fa-check"></i></button>
+            </div>`;
+        L.DomEvent.disableClickPropagation(container);
+        return container;
+    };
+    compactLayerControl.addTo(map_6d637cbb3c6b9a9057a3e4707c64529d);
+
+    var compactControlNode = document.querySelector('.compact-layer-control');
+    var compactTrigger = compactControlNode.querySelector('.compact-layer-trigger');
+    var compactMenu = compactControlNode.querySelector('.compact-layer-menu');
+    compactTrigger.addEventListener('click', function () {
+        compactTrigger.classList.toggle('open');
+        compactMenu.classList.toggle('open');
+    });
+    compactControlNode.querySelectorAll('[data-layer]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var selected = button.dataset.layer;
+            if (selected === 'vehicles') {
+                if (map_6d637cbb3c6b9a9057a3e4707c64529d.hasLayer(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8)) map_6d637cbb3c6b9a9057a3e4707c64529d.removeLayer(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+                else map_6d637cbb3c6b9a9057a3e4707c64529d.addLayer(marker_cluster_3c58cf4d543ecd01a6f3e5ae9e1647b8);
+                button.classList.toggle('active');
+                return;
+            }
+            Object.keys(layer_control_cc65c2c2273bb7f28535c51e656d4fed_layers.base_layers).forEach(function (name) { map_6d637cbb3c6b9a9057a3e4707c64529d.removeLayer(layer_control_cc65c2c2273bb7f28535c51e656d4fed_layers.base_layers[name]); });
+            map_6d637cbb3c6b9a9057a3e4707c64529d.addLayer(layer_control_cc65c2c2273bb7f28535c51e656d4fed_layers.base_layers[{ streets: 'Google Streets', satellite: 'Google Satellite (HD)', terrain: 'Google Terrain' }[selected]]);
+            compactControlNode.querySelectorAll('[data-layer]:not([data-layer="vehicles"])').forEach(function (item) { item.classList.remove('active'); });
+            button.classList.add('active');
+            compactTrigger.classList.remove('open');
+            compactMenu.classList.remove('open');
+        });
+    });
+
+
+</script>
+
+</html>

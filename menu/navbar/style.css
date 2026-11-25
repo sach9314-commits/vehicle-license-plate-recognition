@@ -1,0 +1,204 @@
+/* Reset and base styles */
+.drishti-navbar,
+.drishti-navbar * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar Layout - Resized back to default compact look */
+.drishti-navbar {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #000000;
+    padding: 12px 24px;
+    /* Pehle jaisi default padding */
+    border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.drishti-navbar::after {
+    content: '';
+    position: absolute;
+    left: -30%;
+    bottom: 0;
+    width: 28%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fff200, #ff9900, transparent);
+    animation: navbar-scan 5s ease-in-out infinite;
+}
+
+/* Left Section: Logo Box + Brand Name */
+.drishti-navbar .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.drishti-navbar .logo-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    /* Pehle wala default size */
+    height: 44px;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: transparent;
+    border: none;
+    filter: drop-shadow(0 0 8px rgba(255, 204, 0, .2));
+    animation: navbar-logo-float 4s ease-in-out infinite;
+}
+
+.drishti-navbar .logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Brand Title Styling */
+.drishti-navbar .brand-title {
+    font-family: 'Arial Black', Impact, sans-serif;
+    font-size: 20px;
+    /* Pehle wala default heading size */
+    font-weight: 950;
+    letter-spacing: 0.5px;
+}
+
+.drishti-navbar .brand-drishti {
+    color: #ffffff;
+}
+
+.drishti-navbar .brand-drive {
+    color: #fff200;
+}
+
+/* Navigation Links Container */
+.drishti-navbar .nav-links {
+    position: relative;
+    display: flex;
+    background-color: #000000;
+    border: 1px solid rgba(255, 204, 0, 0.4);
+    border-radius: 6px;
+    padding: 3px;
+    gap: 4px;
+    box-shadow: 0 0 0 1px rgba(255, 204, 0, .06), 0 8px 22px rgba(0, 0, 0, .3);
+}
+
+.drishti-navbar .nav-item {
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: #ffffff;
+    padding: 8px 18px;
+    /* Pehle jaisi default button padding */
+    font-size: 14px;
+    /* Pehle wala default font size */
+    font-family: inherit;
+    font-weight: 500;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    background-color: #000000;
+    cursor: pointer;
+
+    min-width: 130px;
+    /* Compact width taaki zyadha bada na lage */
+    text-align: center;
+    white-space: nowrap;
+}
+
+.drishti-navbar .nav-item::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 -90%;
+    width: 45%;
+    background: linear-gradient(105deg, transparent, rgba(255, 242, 0, .34), transparent);
+    transform: skewX(-18deg);
+    animation: nav-item-sweep 6s ease-in-out infinite;
+}
+
+.drishti-navbar .nav-item:nth-child(2)::after {
+    animation-delay: .8s;
+}
+
+.drishti-navbar .nav-item:nth-child(3)::after {
+    animation-delay: 1.6s;
+}
+
+.drishti-navbar .nav-item:nth-child(4)::after {
+    animation-delay: 2.4s;
+}
+
+@keyframes navbar-scan {
+
+    0%,
+    55% {
+        left: -30%;
+    }
+
+    85%,
+    100% {
+        left: 105%;
+    }
+}
+
+@keyframes navbar-logo-float {
+    50% {
+        transform: translateY(-2px) scale(1.04);
+        filter: drop-shadow(0 0 13px rgba(255, 204, 0, .42));
+    }
+}
+
+@keyframes nav-item-sweep {
+
+    0%,
+    65% {
+        left: -90%;
+    }
+
+    86%,
+    100% {
+        left: 125%;
+    }
+}
+
+/* Hover aur Active par yellow background aur black text */
+.drishti-navbar .nav-item:hover,
+.drishti-navbar .nav-item.active {
+    background-color: #ffcc00;
+    color: #000000;
+}
+
+@media (max-width: 760px) {
+    .drishti-navbar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .drishti-navbar .nav-links {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .drishti-navbar .nav-item {
+        min-width: auto;
+        padding: 8px 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .drishti-navbar::after,
+    .drishti-navbar .logo-box,
+    .drishti-navbar .nav-item::after {
+        animation: none;
+    }
+}

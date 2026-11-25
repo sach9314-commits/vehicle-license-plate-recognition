@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Surveillance Dashboard</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="traffic_style.css?v=ui-text-2" />
+    <link rel="stylesheet" href="/navbar/style.css?v=navbar-ui-1" />
+</head>
+
+<body>
+
+    <header class="drishti-navbar">
+        <div class="nav-left">
+            <div class="logo-box"><img src="/assets/menu_frontend/mainlogo.png" alt="DrishtiDrive Logo"
+                    class="logo-img"></div>
+            <span class="brand-title"><span class="brand-drishti">Drishti</span><span
+                    class="brand-drive">Drive</span></span>
+        </div>
+        <nav class="nav-links" aria-label="Primary navigation">
+            <a href="/" class="nav-item">Home</a>
+            <a href="/anpr/" class="nav-item">ANPR</a>
+            <a href="/tracking/" class="nav-item">Tracking / OCR</a>
+            <a href="/traffic/" class="nav-item active">Traffic</a>
+            <a href="/subscription/?payment=1&amp;next=%2Ftraffic%2F" class="nav-item">Payment</a>
+            <span id="demo-access-indicator" class="nav-item" hidden
+                style="background:#7f1d1d;color:#fff;">DEMO ACCESS · NO PAYMENT</span>
+        </nav>
+    </header>
+
+    <!-- Main Split Dashboard Layout -->
+    <main class="dashboard-container">
+
+        <!-- LEFT PANEL: External Map View via Iframe -->
+        <section class="left-panel">
+            <div class="panel-header">
+                <h2>Live Map </h2>
+            </div>
+            <div id="map-container" style="width: 100%; height: 100%; position: relative; overflow: hidden;">
+                <iframe id="map-frame" src="map.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+        </section>
+
+        <!-- TRANSPARENT CENTRAL PARTITION -->
+        <div class="central-partition"></div>
+
+        <!-- RIGHT PANEL: Cam & CSV Feeds Split -->
+        <section class="right-panel" style="overflow-y: auto; max-height: 100vh; padding-right: 10px;">
+            <div class="panel-header">
+                <h2>Feeds & Data Telemetry</h2>
+            </div>
+
+            <!-- TOP SECTION: ALL VIDEO FEEDS -->
+            <div class="video-section" style="margin-bottom: 30px;">
+                <h3 style="margin-bottom: 15px; color: #fff;">Camera Live Feeds</h3>
+                <div class="video-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+
+                    <!-- CAM 1 VIDEO -->
+                    <div class="card cam-card">
+                        <div class="card-header">
+                            <span>Cam 1</span>
+                            <span class="live-tag">LIVE</span>
+                        </div>
+                        <div class="feed-placeholder"
+                            onclick="openZoom('/traffic/video_feed/1', 'CAM 01 - Vishesh Tyagi Chowk')"
+                            style="position: relative; overflow: hidden; width: 100%; min-height: 300px; aspect-ratio: 1 / 1; background-color: #000;">
+                            <img src="/traffic/video_feed/1" alt="CAM 01 live processed feed"
+                                style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <div class="cam-overlay" style="position: absolute; bottom: 10px; left: 10px; z-index: 2;">
+                                CAM 01 - Vishesh Tyagi Chowk
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAM 2 VIDEO -->
+                    <div class="card cam-card">
+                        <div class="card-header">
+                            <span>Cam 2</span>
+                            <span class="live-tag">LIVE</span>
+                        </div>
+                        <div class="feed-placeholder"
+                            onclick="openZoom('/traffic/video_feed/2', 'CAM 02 - Maharishi Ashram Chowk')"
+                            style="position: relative; overflow: hidden; width: 100%; min-height: 300px; aspect-ratio: 1 / 1; background-color: #000;">
+                            <img src="/traffic/video_feed/2" alt="CAM 02 live processed feed"
+                                style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <div class="cam-overlay" style="position: absolute; bottom: 10px; left: 10px; z-index: 2;">
+                                CAM 02 - Maharishi Ashram Chowk
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAM 3 VIDEO -->
+                    <div class="card cam-card">
+                        <div class="card-header">
+                            <span>Cam 3</span>
+                            <span class="live-tag">LIVE</span>
+                        </div>
+                        <div class="feed-placeholder" onclick="openZoom('/traffic/video_feed/3', 'CAM 03 - BHANGEL')"
+                            style="position: relative; overflow: hidden; width: 100%; min-height: 300px; aspect-ratio: 1 / 1; background-color: #000;">
+                            <img src="/traffic/video_feed/3" alt="CAM 03 live processed feed"
+                                style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <div class="cam-overlay" style="position: absolute; bottom: 10px; left: 10px; z-index: 2;">
+                                CAM 03 - BHANGEL
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAM 4 VIDEO -->
+                    <div class="card cam-card">
+                        <div class="card-header">
+                            <span>Cam 4</span>
+                            <span class="live-tag">LIVE</span>
+                        </div>
+                        <div class="feed-placeholder"
+                            onclick="openZoom('/traffic/video_feed/4', 'CAM 04 - Metro Sec 76')"
+                            style="position: relative; overflow: hidden; width: 100%; min-height: 300px; aspect-ratio: 1 / 1; background-color: #000;">
+                            <img src="/traffic/video_feed/4" alt="CAM 04 live processed feed"
+                                style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            <div class="cam-overlay" style="position: absolute; bottom: 10px; left: 10px; z-index: 2;">
+                                CAM 04 - Metro Sec 76
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- BOTTOM SECTION: VEHICLE DATA -->
+            <div class="data-section" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #fff;">Vehicle Detection Data</h3>
+                <div class="data-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+
+                    <div class="card csv-card">
+                        <div class="card-header">CAM 1 Detection</div>
+                        <div class="csv-body">
+                            <p><span>Vehicles:</span> <strong id="cam1-plate">--</strong></p>
+
+                        </div>
+                    </div>
+
+                    <div class="card csv-card">
+                        <div class="card-header">CAM 2 Detection</div>
+                        <div class="csv-body">
+                            <p><span>Vehicles:</span> <strong id="cam2-plate">--</strong></p>
+
+                        </div>
+                    </div>
+
+                    <div class="card csv-card">
+                        <div class="card-header">CAM 3 Detection</div>
+                        <div class="csv-body">
+                            <p><span>Vehicles:</span> <strong id="cam3-plate">--</strong></p>
+
+                        </div>
+                    </div>
+
+                    <div class="card csv-card">
+                        <div class="card-header">CAM 4 Detection</div>
+                        <div class="csv-body">
+                            <p><span>Vehicles:</span> <strong id="cam4-plate">--</strong></p>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- FULLSCREEN ZOOM MODAL OVERLAY (With Explicit Inline Fixed Styling) -->
+    <div id="videoModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 99999; justify-content: center; align-items: center;"
+        onclick="closeZoom(event)">
+        <div style="position: relative; width: 85vw; max-width: 1200px; height: 80vh; background: #000; border-radius: 8px; overflow: hidden;"
+            onclick="event.stopPropagation()">
+            <button onclick="closeZoom()"
+                style="position: absolute; top: 15px; right: 20px; background: rgba(255,0,0,0.8); color: #fff; border: none; font-size: 18px; font-weight: bold; padding: 5px 12px; border-radius: 50%; cursor: pointer; z-index: 100;">✕</button>
+            <img id="modalVideo" alt="Enlarged live processed feed"
+                style="width: 100%; height: 100%; object-fit: contain;">
+            <div id="modalTitle"
+                style="position: absolute; bottom: 15px; left: 20px; color: #fff; font-size: 16px; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 4px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function openZoom(videoSrc, title) {
+            const modal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+            const modalTitle = document.getElementById('modalTitle');
+
+            modalVideo.src = videoSrc;
+            modalTitle.textContent = title;
+            modal.style.display = 'flex';
+        }
+
+        function closeZoom(event) {
+            const modal = document.getElementById('videoModal');
+            const modalVideo = document.getElementById('modalVideo');
+
+            modal.style.display = 'none';
+            modalVideo.src = '';
+        }
+
+        const demoAccessIndicator = document.getElementById('demo-access-indicator');
+        fetch('/api/subscription/status')
+            .then(async response => {
+                const status = await response.json();
+                if (!response.ok) throw new Error(status.detail || 'Unable to load subscription status.');
+                demoAccessIndicator.hidden = !status.demo;
+            })
+            .catch(error => console.error('Unable to check demo access:', error));
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeZoom();
+        });
+
+        async function loadCameraCounts() {
+            try {
+                const response = await fetch('api/traffic-data', { cache: 'no-store' });
+                if (!response.ok) throw new Error('Traffic data request failed');
+                const payload = await response.json();
+                (payload.cameras || []).forEach(camera => {
+                    const slot = document.getElementById(`${camera.id}-plate`);
+                    if (slot) slot.textContent = `${camera.vehicle_count} vehicles`;
+                });
+            } catch (error) {
+                console.error('Unable to refresh vehicle counts:', error);
+            }
+        }
+
+        loadCameraCounts();
+        setInterval(loadCameraCounts, 5000);
+    </script>
+
+</body>
+
+</html>
